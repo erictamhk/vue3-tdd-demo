@@ -1,8 +1,8 @@
-vi.mock('axios')
-import { render, screen } from '@testing-library/vue'
+import { render, screen, waitFor } from '@testing-library/vue'
 import userEvent from '@testing-library/user-event'
 import SignUp from './SignUp.vue'
-import axios from 'axios'
+import { setupServer } from 'msw/node'
+import { HttpResponse, http } from 'msw'
 
 describe('Sign Up', () => {
   it('has Sign Up header', () => {
@@ -66,6 +66,14 @@ describe('Sign Up', () => {
 
     describe('when user submit form', () => {
       it('send username, email and password to backend', async () => {
+        let requestBody
+        const server = setupServer(
+          http.post('/api/v1/users', async ({ request }) => {
+            requestBody = await request.json()
+            return HttpResponse.json({})
+          })
+        )
+        server.listen()
         const user = userEvent.setup()
         render(SignUp)
         const usernameInput = screen.getByLabelText('Username')
@@ -80,10 +88,12 @@ describe('Sign Up', () => {
 
         const button = screen.getByRole('button', { name: 'Sign Up' })
         await user.click(button)
-        expect(axios.post).toHaveBeenCalledWith('/api/v1/users', {
-          username: 'user1',
-          email: 'user1@mail.com',
-          password: 'P@sswr0d'
+        await waitFor(() => {
+          expect(requestBody).toEqual({
+            username: 'user1',
+            email: 'user1@mail.com',
+            password: 'P@sswr0d'
+          })
         })
       })
     })
