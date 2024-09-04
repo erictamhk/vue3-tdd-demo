@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/vue'
-
+import userEvent from '@testing-library/user-event'
 import SignUp from './SignUp.vue'
 
 describe('Sign Up', () => {
@@ -48,5 +48,18 @@ describe('Sign Up', () => {
   it('disable the button initially', () => {
     render(SignUp)
     expect(screen.getByRole('button', { name: 'Sign Up' })).toBeDisabled()
+  })
+
+  describe('when user sets same value for password inouts', () => {
+    it('enble button', async () => {
+      const user = userEvent.setup()
+      render(SignUp)
+      const passwordInput = screen.getByLabelText('Password')
+      const passwordRepeatInput = screen.getByLabelText('Password Repeat')
+
+      await user.type(passwordInput, 'P@sswr0d')
+      await user.type(passwordRepeatInput, 'P@sswr0d')
+      expect(screen.getByRole('button', { name: 'Sign Up' })).toBeEnabled()
+    })
   })
 })
