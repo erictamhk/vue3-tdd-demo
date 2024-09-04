@@ -10,27 +10,21 @@
   </div>
   <div>
     <label for="password">Password</label>
-    <input id="password" type="password" @input="onChangePassword" />
+    <input id="password" type="password" v-model="password" />
   </div>
   <div>
     <label for="password-repeat">Password Repeat</label>
-    <input id="password-repeat" type="password" @input="onChangePasswordRepeat" />
+    <input id="password-repeat" type="password" v-model="passwordRepeat" />
   </div>
-  <button :disabled="disabled">Sign Up</button>
+  <button :disabled="isDisabled">Sign Up</button>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-const disabled = ref(true)
+import { ref, computed } from 'vue'
 const password = ref('')
 const passwordRepeat = ref('')
 
-const onChangePassword = (event) => {
-  password.value = event.target.value
-  disabled.value = password.value !== passwordRepeat.value
-}
-const onChangePasswordRepeat = (event) => {
-  passwordRepeat.value = event.target.value
-  disabled.value = password.value !== passwordRepeat.value
-}
+const isDisabled = computed(() => {
+  return password.value || passwordRepeat.value ? password.value !== passwordRepeat.value : true
+})
 </script>
